@@ -59,6 +59,7 @@ app.post('/survey', function (req, res) {
   connection.query('INSERT INTO friends SET ?', req.body,
     function (err, result) {
       if (err) throw err;
+      // pass current user data to results page redirect call
       var user_data = JSON.stringify(req.body)
       var encoded_data = encodeURIComponent(user_data);
       res.redirect('/results?value=' + encoded_data);
@@ -67,9 +68,49 @@ app.post('/survey', function (req, res) {
 });
 
 app.get('/results', function (req, res) {
-  var enconded_data = decodeURIComponent(req.query.value)
-  var user_data = JSON.parse(enconded_data)
-  res.send(user_data)
+  // parse current user data to compare against other users 
+  var enconded_data;
+  var userData;
+  var allUserResults
+  var bestMatchName = ''
+  var bestMatchDiff = 250
+
+  if (req.query.value) {
+    enconded_data = decodeURIComponent(req.query.value)
+    userData = JSON.parse(enconded_data)
+    console.log(userData)
+
+
+    connection.query('SELECT * FROM friends',
+      function (err, result) {
+        if (err) throw err;
+        result.pop()
+        result.forEach(element => {
+          var diff =
+            (Math.abs(element.pets - userData.pets)) +
+            (Math.abs(element.outdoorsy - userData.outdoorsy)) +
+            (Math.abs(element.outgoing - userData.outgoing)) +
+            (Math.abs(element.upset - userData.upset)) +
+            (Math.abs(element.curious - userData.curious)) +
+            (Math.abs(element.introvert - userData.introvert)) +
+            (Math.abs(element.creative - userData.creative)) +
+            (Math.abs(element.relaxed - userData.relaxed)) +
+            (Math.abs(element.family - userData.family)) +
+            (Math.abs(element.friends - userData.friends))
+          if (diff < bestMatchDiff) {
+            bestMatchDiff = diff
+            console.log(bestMatchDiff)
+            bestMatchName = element.user_name
+            console.log(bestMatchName)
+          }
+        });
+        res.render('results', { bestMatch: bestMatchName, bestDiff: bestMatchDiff })
+        connection.end()
+      }
+    )
+  } else {
+    res.redirect('/survey')
+  };
 })
 
 app.get('/api/friends', function (req, res) {
@@ -77,6 +118,7 @@ app.get('/api/friends', function (req, res) {
     function (err, result) {
       if (err) throw err;
       res.json(result);
+      connection.end()
     }
   );
 })
