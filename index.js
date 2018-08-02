@@ -2,8 +2,9 @@ var express = require('express');
 var mysql = require('mysql');
 
 var app = express()
-var bodyParser = require('body-parser');
 var PORT = 3000
+
+var bodyParser = require('body-parser');
 var exphbs = require('express-handlebars');
 
 var connection = mysql.createConnection({
@@ -45,11 +46,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'handlebars');
 app.set('views', './views')
 
-
-app.listen(PORT, function () {
-  console.log("Listening on PORT ", PORT)
-})
-
 app.get('/', function (req, res) {
   res.render('home');
 });
@@ -63,10 +59,18 @@ app.post('/survey', function (req, res) {
   connection.query('INSERT INTO friends SET ?', req.body,
     function (err, result) {
       if (err) throw err;
-      res.send('User added to database with ID: ' + result.insertId);
+      var user_data = JSON.stringify(req.body)
+      var encoded_data = encodeURIComponent(user_data);
+      res.redirect('/results?value=' + encoded_data);
     }
   );
 });
+
+app.get('/results', function (req, res) {
+  var enconded_data = decodeURIComponent(req.query.value)
+  var user_data = JSON.parse(enconded_data)
+  res.send(user_data)
+})
 
 app.get('/api/friends', function (req, res) {
   connection.query('SELECT * FROM friends',
@@ -79,4 +83,8 @@ app.get('/api/friends', function (req, res) {
 
 app.get('*', function (req, res) {
   res.redirect('/home');
-}); 
+});
+
+app.listen(PORT, function () {
+  console.log("Listening on PORT ", PORT)
+})
