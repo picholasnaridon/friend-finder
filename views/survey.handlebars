@@ -1,64 +1,117 @@
 <h1>The Friend Survey</h1>
-<form action="survey" method="post">
-  <label for="user_name">Name</label>
+<form>
+  <label for="userName">Name</label>
   <br>
-  <input type="text" name="user_name">
+  <input type="text" name="userName" id="userName">
   <br>
 
-  <label for="photo">Photo Link</label>
+  <label for="photoUrl">Photo Link</label>
   <br>
-  <input type="text" name="photo">
+  <input type="text" name="photoUrl" id="photoUrl">
   <br>
 
   <label for="pets">Pet Lover</label>
   <br>
-  <input type="range" id="start" name="pets" min="0" max="5" />
+  <input type="range" id="pets" name="pets" min="0" max="5" />
   <br>
 
   <label for="outdoorsy">Outdoorsy</label>
   <br>
-  <input type="range" id="start" name="outdoorsy" min="0" max="5" />
+  <input type="range" id="outdoorsy" name="outdoorsy" min="0" max="5" />
   <br>
 
   <label for="outgoing">Outgoing</label>
   <br>
-  <input type="range" id="start" name="outgoing" min="0" max="5" />
+  <input type="range" id="outgoing" name="outgoing" min="0" max="5" />
   <br>
 
   <label for="upset">People can rarely upset you.</label>
   <br>
-  <input type="range" id="start" name="upset" min="0" max="5" />
+  <input type="range" id="upset" name="upset" min="0" max="5" />
   <br>
 
   <label for="curious">You rarely do something just out of sheer curiosity.</label>
   <br>
-  <input type="range" id="start" name="curious" min="0" max="5" />
+  <input type="range" id="curious" name="curious" min="0" max="5" />
   <br>
 
   <label for="introvert">You feel more energetic after spending time with a group of people.</label>
   <br>
-  <input type="range" id="start" name="introvert" min="0" max="5" />
+  <input type="range" id="introvert" name="introvert" min="0" max="5" />
   <br>
 
   <label for="creative">You rarely get carried away by fantasies and ideas.
   </label>
   <br>
-  <input type="range" id="start" name="creative" min="0" max="5" />
+  <input type="range" id="creative" name="creative" min="0" max="5" />
   <br>
 
   <label for="relaxed">You are easy going.</label>
   <br>
-  <input type="range" id="start" name="relaxed" min="0" max="5" />
+  <input type="range" id="relaxed" name="relaxed" min="0" max="5" />
   <br>
 
   <label for="family">You are close with your family</label>
   <br>
-  <input type="range" id="start" name="family" min="0" max="5" />
+  <input type="range" id="family" name="family" min="0" max="5" />
   <br>
 
   <label for="friends">You have lots of friends</label>
   <br>
-  <input type="range" id="start" name="friends" min="0" max="5" />
+  <input type="range" id="friends" name="friends" min="0" max="5" />
   <br>
   <input type="submit" class="btn-primary">
 </form>
+
+<script>
+  $('.btn-primary').click(function (e) {
+    console.log("clicked")
+    e.preventDefault()
+    var data = {
+      "userName": $("#userName").val(),
+      "photoUrl": $("#photoUrl").val(),
+      "pets": $("#pets").val(),
+      "outdoorsy": $("#outdoorsy").val(),
+      "outgoing": $("#outgoing").val(),
+      "upset": $("#upset").val(),
+      "curious": $("#curious").val(),
+      "introvert": $("#introvert").val(),
+      "creative": $("#creative").val(),
+      "relaxed": $("#relaxed").val(),
+      "family": $("#family").val(),
+      "friends": $("#friends").val(),
+    }
+    $.ajax({
+      url: '/api/friends',
+      method: 'post',
+      data: data,
+      success: function (res) {
+        $('#myModal').modal('show')                // initializes and invokes show immediately
+        $(".modal-body").append(`Their Name is ${res.bestMatchName}! <br>`)
+        $(".modal-body").append(`Here is their picture <br><img src=${res.bestMatchPic} style="max-height:100px; max-width:100px"/> <br>`)
+        $(".modal-body").append(`Only ${res.bestMatchDiff} points difference!`)
+
+      }
+    })
+  })
+
+</script>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Your Match is in!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="text-align: center">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
