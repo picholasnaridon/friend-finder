@@ -17,7 +17,6 @@ app.set('views', './views')
 var apiRouter = require('./routes/apiRoutes');
 var htmlRouter = require('./routes/htmlRoutes');
 
-var surveyResults = require('./public/javascript/surveyResults.js')
 
 app.use('/', htmlRouter);
 app.use('/api', apiRouter);
